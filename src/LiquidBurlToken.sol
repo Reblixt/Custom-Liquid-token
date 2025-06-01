@@ -49,7 +49,6 @@ contract LiquidBurlToken is
     // ================ Events ================
 
     // ================ Errors ================
-    error Liquid_burlToken_still_contain_balance(uint256);
 
     // error NotEnoughBurl(uint256 available, uint256 required);
     // error NotEnoughUsdc(uint256 available, uint256 required);

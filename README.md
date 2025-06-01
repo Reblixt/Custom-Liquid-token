@@ -12,4 +12,3 @@ This system provides users with several key functionalities:
 This approach offers potential tax advantages in certain jurisdictions, allowing users to be subject to capital gains tax rather than dividend tax.
 ```
 
-What else would you like to add to the README?
