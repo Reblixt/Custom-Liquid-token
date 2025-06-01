@@ -17,6 +17,7 @@ contract LiquidFactory is ReentrancyGuardUpgradeable, AccessControlUpgradeable {
 
     string public contractMetadata =
         '{"name":"LiquidBurlToken","symbol": "LBT", "description":"A token representing liquid burl assets.","image":"https://example.com/image.png"}';
+    string public imageUrl = "https://example.com/image.png";
 
     mapping(address => address) public ownerToLBT;
     mapping(address => address) public LBTToOwner;
@@ -28,9 +29,12 @@ contract LiquidFactory is ReentrancyGuardUpgradeable, AccessControlUpgradeable {
         address indexed liquidBurlToken
     );
     event ContractMetadataUpdated();
+    event ImageUrlUpdated(string imageUrl);
 
     // ================ Errors ================
-    error LiquidBurlTokenAlreadyExists(address owner);
+    error LiquidFactory_LBTAlreadyExists(address owner);
+    error LiquidFactory_NoLBTForOwner(address owner);
+    error LiquidFactory_LBTNotEmpty(address liquidBurlToken);
 
     function initialize(
         address usdcToken_,
@@ -51,7 +55,7 @@ contract LiquidFactory is ReentrancyGuardUpgradeable, AccessControlUpgradeable {
         address owner = msg.sender;
         require(
             ownerToLBT[owner] == address(0),
-            LiquidBurlTokenAlreadyExists(owner)
+            LiquidFactory_LBTAlreadyExists(owner)
         );
 
         LiquidBurlToken newToken = new LiquidBurlToken(
@@ -59,7 +63,8 @@ contract LiquidFactory is ReentrancyGuardUpgradeable, AccessControlUpgradeable {
             address(burlToken),
             address(usdcToken),
             isAutomated,
-            contractMetadata
+            contractMetadata,
+            imageUrl
         );
         emit LiquidBurlTokenCreated(owner, address(newToken));
         return address(newToken);
@@ -80,6 +85,28 @@ contract LiquidFactory is ReentrancyGuardUpgradeable, AccessControlUpgradeable {
     ) external onlyRole(OWNER_ROLE) {
         contractMetadata = contractMetadata_;
         emit ContractMetadataUpdated();
+    }
+
+    function setImageUrl(
+        string memory imageUrl_
+    ) external onlyRole(OWNER_ROLE) {
+        imageUrl = imageUrl_;
+        emit ImageUrlUpdated(imageUrl_);
+    }
+
+    function removeLBTFromList(address owner) external onlyRole(OWNER_ROLE) {
+        address liquidBurlToken = ownerToLBT[owner];
+        require(
+            liquidBurlToken != address(0),
+            LiquidFactory_NoLBTForOwner(owner)
+        );
+        require(
+            IERC20(liquidBurlToken).balanceOf(owner) == 0,
+            LiquidFactory_LBTNotEmpty(liquidBurlToken)
+        );
+
+        delete ownerToLBT[owner];
+        delete LBTToOwner[liquidBurlToken];
     }
 
     // ================ View functions ================
