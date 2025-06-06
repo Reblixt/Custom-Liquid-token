@@ -186,6 +186,7 @@ contract LiquidBurlToken is
     }
 
     // ==== Turn off ERC721 trasfer functions and make it souldbound ====
+    /// @notice Override the safeTransferFrom and transferFrom functions to prevent transfers
     function safeTransferFrom(
         address from,
         address to,
@@ -195,6 +196,7 @@ contract LiquidBurlToken is
         revert LiquidBurlToken_TransferNotAllowed();
     }
 
+    /// @notice Override the transferFrom function to prevent transfers
     function transferFrom(
         address from,
         address to,
